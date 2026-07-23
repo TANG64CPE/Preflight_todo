@@ -2,7 +2,7 @@
 
 A complete full-stack Todo application built with React, Vite, Express, Drizzle ORM, and PostgreSQL.
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 Preflight_todo/
@@ -17,7 +17,7 @@ Preflight_todo/
 
 ---
 
-## ⚡ Tech Stack
+## Tech Stack
 
 - **Frontend**: React 19, Vite, Pico CSS, Axios, Dayjs
 - **Backend**: Node.js, Express 5, Drizzle ORM, Helmet, Morgan, CORS
@@ -26,7 +26,7 @@ Preflight_todo/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Environment Setup
 
@@ -64,8 +64,8 @@ Also copy environment files into sub-repositories for local node scripts if need
    pnpm dev
    ```
 
-- 🌐 Frontend: [http://localhost:5173](http://localhost:5173) (Vite proxies `/api` to backend at `http://localhost:3001`)
-- ⚙️ Backend API: [http://localhost:3001](http://localhost:3001)
+- Frontend: [http://localhost:5173](http://localhost:5173) (Vite proxies `/api` to backend at `http://localhost:3001`)
+- Backend API: [http://localhost:3001](http://localhost:3001)
 
 ---
 
@@ -78,9 +78,9 @@ pnpm docker:up
 # or: docker compose up -d --build
 ```
 
-- 🌐 Frontend Web App: [http://localhost:6002](http://localhost:6002)
-- ⚙️ Backend API: [http://localhost:3001](http://localhost:3001)
-- 🗄️ Database: `localhost:5432`
+- Frontend Web App: [http://localhost:6002](http://localhost:6002)
+- Backend API: [http://localhost:3001](http://localhost:3001)
+- Database: `localhost:5432`
 
 To stop all services:
 ```bash
@@ -90,7 +90,7 @@ pnpm docker:down
 
 ---
 
-## 🛠️ Workspace Commands Reference
+## Workspace Commands Reference
 
 | Command | Description |
 |---|---|
