@@ -39,6 +39,15 @@ const initPglite = async () => {
 try {
   const sql = postgres(connectionString, { max: 1, connect_timeout: 2, idle_timeout: 2 });
   await sql`SELECT 1`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS todo (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      todo_text VARCHAR(255) NOT NULL,
+      is_done BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+      updated_at TIMESTAMP(3)
+    );
+  `;
   dbConn = sql;
   dbClient = drizzlePg(sql, { schema, logger: true });
   console.log(`Connected to PostgreSQL database at ${dbHost}:${dbPort}`);
