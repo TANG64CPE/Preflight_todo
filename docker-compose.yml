@@ -1,0 +1,63 @@
+name: preflight-stack
+
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: pf-db
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pf-data:/var/lib/postgresql
+      - ./pf-db/_entrypoint:/docker-entrypoint-initdb.d
+    environment:
+      - TZ=Asia/Bangkok
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres_secure_password}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-mydb}
+      - POSTGRES_APP_USER=${POSTGRES_APP_USER:-appuser}
+      - POSTGRES_APP_PASSWORD=${POSTGRES_APP_PASSWORD:-appuser_secure_password}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-mydb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pf-net
+
+  backend:
+    container_name: pf-backend
+    build: ./pf-backend
+    ports:
+      - "${PORT:-3001}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-mydb}
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=db
+      - POSTGRES_APP_USER=${POSTGRES_APP_USER:-appuser}
+      - POSTGRES_APP_PASSWORD=${POSTGRES_APP_PASSWORD:-appuser_secure_password}
+    volumes:
+      - ./pf-backend/logs:/app/logs
+    networks:
+      - pf-net
+
+  frontend:
+    container_name: pf-frontend
+    build: ./pf-frontend
+    ports:
+      - "${NGINX_PORT:-6002}:6000"
+    depends_on:
+      - backend
+    environment:
+      - NGINX_PROXY=${NGINX_PROXY:-http://backend:3000}
+    networks:
+      - pf-net
+
+volumes:
+  pf-data:
+
+networks:
+  pf-net:
+    driver: bridge

@@ -1,0 +1,7 @@
+packages:
+  - 'pf-db'
+  - 'pf-backend'
+  - 'pf-frontend'
+
+allowBuilds:
+  esbuild: true

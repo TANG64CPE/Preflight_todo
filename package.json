@@ -1,0 +1,26 @@
+{
+  "name": "preflight-todo-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Preflight Todo Full-Stack Application (Database, Backend, Frontend)",
+  "scripts": {
+    "dev": "pnpm --parallel --filter pf-backend --filter pf-frontend dev",
+    "dev:db": "docker compose up -d db",
+    "db:push": "pnpm --filter pf-db run db:push",
+    "db:generate": "pnpm --filter pf-db run db:generate",
+    "db:migrate": "pnpm --filter pf-db run db:migrate",
+    "db:prototype": "pnpm --filter pf-db run db:prototype",
+    "build": "pnpm --recursive run build",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down"
+  },
+  "keywords": [
+    "fullstack",
+    "react",
+    "express",
+    "drizzle",
+    "postgres"
+  ],
+  "author": "",
+  "license": "ISC"
+}
