@@ -231,9 +231,6 @@ function App() {
         {/* Top Header */}
         <header className="app-header">
           <div className="brand-section">
-            <div className="brand-badge">
-              <IconList className="brand-icon" />
-            </div>
             <div>
               <h1 className="brand-title">Todo List</h1>
               <p className="brand-subtitle">Minimal task workspace</p>
@@ -402,20 +399,22 @@ function App() {
                     key={item.id}
                     className={`todo-card ${isEditingThis ? "editing" : ""}`}
                   >
-                    <div className="todo-number">{idx + 1}</div>
+                    <div className="todo-left">
+                      <div className="todo-number">{idx + 1}</div>
 
-                    <div className="todo-content">
-                      <div data-cy="todo-item-text" className="todo-text">
-                        {item.todoText}
-                      </div>
+                      <div className="todo-content">
+                        <div data-cy="todo-item-text" className="todo-text">
+                          {item.todoText}
+                        </div>
 
-                      <div className="todo-date">
-                        <span className="meta-tag">
-                          <IconCalendar className="meta-icon" /> {date}
-                        </span>
-                        <span className="meta-tag">
-                          <IconClock className="meta-icon" /> {time}
-                        </span>
+                        <div className="todo-date">
+                          <span className="meta-tag">
+                            <IconCalendar className="meta-icon" /> {date}
+                          </span>
+                          <span className="meta-tag">
+                            <IconClock className="meta-icon" /> {time}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
