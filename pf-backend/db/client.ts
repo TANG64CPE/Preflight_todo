@@ -28,9 +28,11 @@ const initPglite = async () => {
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       todo_text VARCHAR(255) NOT NULL,
       is_done BOOLEAN DEFAULT FALSE,
+      metadata JSONB DEFAULT '{}'::jsonb,
       created_at TIMESTAMP DEFAULT NOW() NOT NULL,
       updated_at TIMESTAMP(3)
     );
+    ALTER TABLE todo ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
   `);
   dbConn = client;
   dbClient = drizzlePglite(client, { schema, logger: true });
@@ -44,10 +46,12 @@ try {
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       todo_text VARCHAR(255) NOT NULL,
       is_done BOOLEAN DEFAULT FALSE,
+      metadata JSONB DEFAULT '{}'::jsonb,
       created_at TIMESTAMP DEFAULT NOW() NOT NULL,
       updated_at TIMESTAMP(3)
     );
   `;
+  await sql`ALTER TABLE todo ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;`;
   dbConn = sql;
   dbClient = drizzlePg(sql, { schema, logger: true });
   console.log(`Connected to PostgreSQL database at ${dbHost}:${dbPort}`);
