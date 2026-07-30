@@ -241,7 +241,7 @@ function App() {
               <IconList className="brand-icon" />
             </div>
             <div>
-              <h1 className="brand-title">Preflight Todo</h1>
+              <h1 className="brand-title">Todo List</h1>
               <p className="brand-subtitle">Minimal task workspace</p>
             </div>
           </div>
