@@ -199,14 +199,8 @@ function App() {
   }
 
   function handleDelete(id: string) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this todo?",
-    );
-
-    if (!confirmed) return;
-
     axios
-      .delete("/api/todo", { data: { id } })
+      .delete(`/api/todo?id=${id}`, { data: { id } })
       .then(fetchData)
       .then(() => {
         setMode("ADD");

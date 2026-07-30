@@ -78,7 +78,7 @@ app.patch("/todo", async (req, res, next) => {
 // Delete
 app.delete("/todo", async (req, res, next) => {
   try {
-    const id = req.body.id ?? "";
+    const id = (req.body?.id || req.query?.id) ?? "";
     if (!id) throw new Error("Empty id");
 
     // Check for existence if data

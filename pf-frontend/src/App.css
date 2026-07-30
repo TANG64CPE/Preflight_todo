@@ -502,6 +502,15 @@ body {
   gap: 6px;
 }
 
+.unt-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  pointer-events: none;
+}
+
 .action-btn {
   width: 36px;
   height: 36px;
@@ -513,7 +522,10 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  pointer-events: auto;
   transition: all 0.2s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .action-icon {
