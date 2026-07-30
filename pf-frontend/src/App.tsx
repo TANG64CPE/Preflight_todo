@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { type TodoItem } from "./types";
 import dayjs from "dayjs";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import "./App.css";
 
 // Untitled UI Free Icons (24x24 SVG line icons)
@@ -62,15 +63,6 @@ function IconClock({ className = "" }: { className?: string }) {
   );
 }
 
-function IconSearch({ className = "" }: { className?: string }) {
-  return (
-    <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    </svg>
-  );
-}
-
 function IconSun({ className = "" }: { className?: string }) {
   return (
     <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -95,26 +87,11 @@ function IconMoon({ className = "" }: { className?: string }) {
   );
 }
 
-function IconList({ className = "" }: { className?: string }) {
+function IconSearch({ className = "" }: { className?: string }) {
   return (
     <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="8" y1="6" x2="21" y2="6"></line>
-      <line x1="8" y1="12" x2="21" y2="12"></line>
-      <line x1="8" y1="18" x2="21" y2="18"></line>
-      <line x1="3" y1="6" x2="3.01" y2="6"></line>
-      <line x1="3" y1="12" x2="3.01" y2="12"></line>
-      <line x1="3" y1="18" x2="3.01" y2="18"></line>
-    </svg>
-  );
-}
-
-function IconSort({ className = "" }: { className?: string }) {
-  return (
-    <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="11" y1="5" x2="11" y2="19"></line>
-      <polyline points="7 9 11 5 15 9"></polyline>
-      <line x1="18" y1="19" x2="18" y2="5"></line>
-      <polyline points="14 15 18 19 22 15"></polyline>
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
     </svg>
   );
 }
@@ -128,17 +105,102 @@ function IconX({ className = "" }: { className?: string }) {
   );
 }
 
-function App() {
+function IconGrid({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7"></rect>
+      <rect x="14" y="3" width="7" height="7"></rect>
+      <rect x="14" y="14" width="7" height="7"></rect>
+      <rect x="3" y="14" width="7" height="7"></rect>
+    </svg>
+  );
+}
+
+function IconList({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"></line>
+      <line x1="8" y1="12" x2="21" y2="12"></line>
+      <line x1="8" y1="18" x2="21" y2="18"></line>
+      <line x1="3" y1="6" x2="3.01" y2="6"></line>
+      <line x1="3" y1="12" x2="3.01" y2="12"></line>
+      <line x1="3" y1="18" x2="3.01" y2="18"></line>
+    </svg>
+  );
+}
+
+function IconTag({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+      <line x1="7" y1="7" x2="7.01" y2="7"></line>
+    </svg>
+  );
+}
+
+// Auto-tagging parser function
+function extractTagsAndMetadata(text: string) {
+  const hashtagRegex = /#([\wก-๙]+)/g;
+  const tags: string[] = [];
+  let match;
+  while ((match = hashtagRegex.exec(text)) !== null) {
+    tags.push(match[1].toLowerCase());
+  }
+
+  // Automatic keyword rules if no hashtags provided
+  if (tags.length === 0) {
+    const lower = text.toLowerCase();
+    if (lower.includes("plant") || lower.includes("water") || lower.includes("sensor") || lower.includes("ต้นไม้") || lower.includes("รดน้ำ")) tags.push("iot", "garden");
+    if (lower.includes("bug") || lower.includes("fix") || lower.includes("แก้") || lower.includes("บั๊ก")) tags.push("bug");
+    if (lower.includes("ui") || lower.includes("design") || lower.includes("css") || lower.includes("ออกแบบ")) tags.push("design");
+    if (lower.includes("api") || lower.includes("backend") || lower.includes("db") || lower.includes("ระบบ")) tags.push("backend");
+    if (lower.includes("urgent") || lower.includes("ด่วน") || lower.includes("asap")) tags.push("urgent");
+  }
+
+  const isUrgent = text.toLowerCase().includes("urgent") || text.includes("ด่วน");
+
+  return {
+    tags: Array.from(new Set(tags)),
+    detectedPriority: isUrgent ? "HIGH" : "MEDIUM"
+  };
+}
+
+function getItemStatus(item: TodoItem): "TODO" | "DOING" | "DONE" {
+  if (item?.metadata?.status) return item.metadata.status;
+  return item?.isDone ? "DONE" : "TODO";
+}
+
+function formatDateTime(dateStr?: string) {
+  if (!dateStr) return { date: "วันนี้", time: "" };
+  const obj = dayjs(dateStr);
+  return {
+    date: obj.format("DD/MM/YYYY"),
+    time: obj.format("HH:mm น.")
+  };
+}
+
+export default function App() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [inputText, setInputText] = useState("");
+  const [inputPriority, setInputPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
   const [searchText, setSearchText] = useState("");
+  const [mode, setMode] = useState<"CREATE" | "EDIT">("CREATE");
+  const [curTodoId, setCurTodoId] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"NEWEST" | "OLDEST">("NEWEST");
-  const [mode, setMode] = useState<"ADD" | "EDIT">("ADD");
-  const [curTodoId, setCurTodoId] = useState("");
+  const [viewMode, setViewMode] = useState<"KANBAN" | "LIST">("KANBAN");
+  const [enabled, setEnabled] = useState(false);
 
-  const [darkMode, setDarkMode] = useState(() => {
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
     return localStorage.getItem("darkMode") === "true";
   });
+
+  useEffect(() => {
+    const animation = requestAnimationFrame(() => setEnabled(true));
+    return () => {
+      cancelAnimationFrame(animation);
+      setEnabled(false);
+    };
+  }, []);
 
   async function fetchData() {
     try {
@@ -154,76 +216,160 @@ function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("darkMode", String(darkMode));
+    localStorage.setItem("darkMode", darkMode ? "true" : "false");
   }, [darkMode]);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setInputText(e.target.value);
-  }
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!inputText.trim()) return;
 
-  function handleSubmit() {
-    const trimmedText = inputText.trim();
+    const { tags, detectedPriority } = extractTagsAndMetadata(inputText);
+    const finalPriority = inputPriority !== "MEDIUM" ? inputPriority : detectedPriority;
 
-    if (!trimmedText) return;
-
-    if (mode === "ADD") {
-      axios
-        .request({
-          url: "/api/todo",
-          method: "put",
-          data: { todoText: trimmedText },
-        })
-        .then(() => {
-          setInputText("");
-        })
-        .then(fetchData)
-        .catch((err) => alert(err));
-    } else {
-      axios
-        .request({
-          url: "/api/todo",
-          method: "patch",
-          data: {
-            id: curTodoId,
-            todoText: trimmedText,
-          },
-        })
-        .then(() => {
-          setInputText("");
-          setMode("ADD");
-          setCurTodoId("");
-        })
-        .then(fetchData)
-        .catch((err) => alert(err));
+    if (mode === "CREATE") {
+      try {
+        await axios.post("/api/todo", {
+          todoText: inputText,
+          metadata: {
+            tags,
+            priority: finalPriority,
+            status: "TODO",
+            source: "manual"
+          }
+        });
+        setInputText("");
+        setInputPriority("MEDIUM");
+        fetchData();
+      } catch (err) {
+        console.error("Failed to create todo", err);
+      }
+    } else if (mode === "EDIT" && curTodoId) {
+      try {
+        const existing = todos.find((t) => t.id === curTodoId);
+        await axios.put("/api/todo", {
+          id: curTodoId,
+          todoText: inputText,
+          metadata: {
+            ...existing?.metadata,
+            tags,
+            priority: finalPriority
+          }
+        });
+        setInputText("");
+        setMode("CREATE");
+        setCurTodoId(null);
+        setInputPriority("MEDIUM");
+        fetchData();
+      } catch (err) {
+        console.error("Failed to update todo", err);
+      }
     }
   }
 
-  function handleDelete(id: string) {
-    axios
-      .delete(`/api/todo?id=${id}`, { data: { id } })
-      .then(fetchData)
-      .then(() => {
-        setMode("ADD");
+  async function toggleDone(item: TodoItem) {
+    try {
+      const newDoneState = !item.isDone;
+      const newStatus = newDoneState ? "DONE" : "TODO";
+
+      await axios.put("/api/todo", {
+        id: item.id,
+        isDone: newDoneState,
+        metadata: {
+          ...item.metadata,
+          status: newStatus
+        }
+      });
+      fetchData();
+    } catch (err) {
+      console.error("Failed to toggle todo status", err);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await axios.delete("/api/todo", { data: { id } });
+      if (curTodoId === id) {
+        setMode("CREATE");
+        setCurTodoId(null);
         setInputText("");
-        setCurTodoId("");
+        setInputPriority("MEDIUM");
+      }
+      fetchData();
+    } catch (err) {
+      console.error("Failed to delete todo", err);
+    }
+  }
+
+  // Handle Drag & Drop in Kanban Board
+  async function handleDragEnd(result: DropResult) {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) return;
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) return;
+
+    const targetStatus = destination.droppableId as "TODO" | "DOING" | "DONE";
+    const targetIsDone = targetStatus === "DONE";
+
+    // Optimistic UI update
+    setTodos((prevTodos) =>
+      prevTodos.map((t) => {
+        if (t.id === draggableId) {
+          return {
+            ...t,
+            isDone: targetIsDone,
+            metadata: {
+              ...t.metadata,
+              status: targetStatus
+            }
+          };
+        }
+        return t;
       })
-      .catch((err) => alert(err));
+    );
+
+    // Backend sync
+    try {
+      const draggedItem = todos.find((t) => t.id === draggableId);
+      if (draggedItem) {
+        await axios.put("/api/todo", {
+          id: draggableId,
+          isDone: targetIsDone,
+          metadata: {
+            ...draggedItem.metadata,
+            status: targetStatus
+          }
+        });
+      }
+    } catch (err) {
+      console.error("Failed to update dragged todo status", err);
+      fetchData();
+    }
   }
 
-  function handleCancel() {
-    setMode("ADD");
-    setInputText("");
-    setCurTodoId("");
-  }
+  const latestDateText = todos.length > 0
+    ? formatDateTime(todos[0].createdAt).date
+    : formatDateTime().date;
 
-  const displayedTodos = [...todos]
-    .filter((todo) =>
-      todo.todoText.toLowerCase().includes(searchText.toLowerCase()),
-    )
+  const filteredTodos = todos
+    .filter((item) => {
+      if (!searchText.trim()) return true;
+      const q = searchText.toLowerCase();
+      const matchText = item.todoText.toLowerCase().includes(q);
+      const matchTags = item.metadata?.tags?.some((t) => t.toLowerCase().includes(q));
+      return matchText || matchTags;
+    })
     .sort((a, b) => {
-      const result = compareDate(a, b);
-      return sortOrder === "OLDEST" ? result : -result;
+      const timeA = new Date(a.createdAt || 0).getTime();
+      const timeB = new Date(b.createdAt || 0).getTime();
+      return sortOrder === "NEWEST" ? timeB - timeA : timeA - timeB;
     });
+
+  const todoItems = filteredTodos.filter((t) => getItemStatus(t) === "TODO");
+  const doingItems = filteredTodos.filter((t) => getItemStatus(t) === "DOING");
+  const doneItems = filteredTodos.filter((t) => getItemStatus(t) === "DONE");
 
   return (
     <div className={darkMode ? "app dark" : "app"}>
@@ -233,83 +379,118 @@ function App() {
           <div className="brand-section">
             <div>
               <h1 className="brand-title">Todo List</h1>
-              <p className="brand-subtitle">Minimal task workspace</p>
+              {/* ลบ Minimal task workspace ออกตามที่ผู้ใช้ระบุ */}
             </div>
           </div>
 
-          <button
-            className="theme-button"
-            onClick={() => setDarkMode((current) => !current)}
-            aria-label="Toggle Theme"
-          >
-            {darkMode ? (
-              <>
-                <IconSun className="btn-icon" /> Light Mode
-              </>
-            ) : (
-              <>
-                <IconMoon className="btn-icon" /> Dark Mode
-              </>
-            )}
-          </button>
+          <div className="header-controls">
+            {/* View Switcher: List vs Kanban */}
+            <div className="view-switcher">
+              <button
+                className={`view-btn ${viewMode === "KANBAN" ? "active" : ""}`}
+                onClick={() => setViewMode("KANBAN")}
+                title="มุมมองบอร์ด Kanban"
+              >
+                <IconGrid className="btn-icon" /> บอร์ด
+              </button>
+              <button
+                className={`view-btn ${viewMode === "LIST" ? "active" : ""}`}
+                onClick={() => setViewMode("LIST")}
+                title="มุมมองรายการ List"
+              >
+                <IconList className="btn-icon" /> รายการ
+              </button>
+            </div>
+
+            <button
+              className="btn-theme-toggle"
+              onClick={() => setDarkMode(!darkMode)}
+              aria-label="สลับโหมดสี"
+            >
+              {darkMode ? (
+                <>
+                  <IconSun className="btn-icon" /> โหมดสว่าง
+                </>
+              ) : (
+                <>
+                  <IconMoon className="btn-icon" /> โหมดมืด
+                </>
+              )}
+            </button>
+          </div>
         </header>
 
-        <main>
-          {/* Create / Edit Input Form */}
-          <section className="todo-form-wrapper">
-            <div className="todo-form">
+        {/* Main Workspace Card */}
+        <main className="workspace-card">
+          {/* Input Form */}
+          <form className="todo-form" onSubmit={handleSubmit}>
+            <div className="input-group">
               <input
+                data-cy="todo-input"
                 type="text"
-                placeholder={
-                  mode === "ADD"
-                    ? "Add a new task..."
-                    : "Update task description..."
-                }
-                onChange={handleChange}
+                className="input-task"
                 value={inputText}
-                data-cy="input-text"
-                className="input-main"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSubmit();
-                  }
-                }}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder={
+                  mode === "CREATE"
+                    ? "เพิ่มรายการใหม่... (พิมพ์ #แท็ก เพื่อติดแท็กอัตโนมัติ)"
+                    : "แก้ไขรายละเอียดงาน..."
+                }
               />
+              
+              {/* Select Priority (ระดับความสำคัญ) */}
+              <select
+                className="select-priority"
+                value={inputPriority}
+                onChange={(e) => setInputPriority(e.target.value as "LOW" | "MEDIUM" | "HIGH")}
+                title="เลือกระดับความสำคัญ"
+              >
+                <option value="HIGH">🔥 สูง</option>
+                <option value="MEDIUM">⚡ ปานกลาง</option>
+                <option value="LOW">🌱 ต่ำ</option>
+              </select>
 
               <button
-                onClick={handleSubmit}
-                data-cy="submit"
-                disabled={!inputText.trim()}
-                className="btn-primary"
+                data-cy="todo-submit"
+                type="submit"
+                className={mode === "CREATE" ? "btn-primary" : "btn-primary btn-edit-mode"}
               >
-                {mode === "ADD" ? (
+                {mode === "CREATE" ? (
                   <>
-                    <IconPlus className="btn-icon" /> Add Task
+                    <IconPlus className="btn-icon" /> เพิ่มงาน
                   </>
                 ) : (
                   <>
-                    <IconCheck className="btn-icon" /> Update
+                    <IconCheck className="btn-icon" /> บันทึก
                   </>
                 )}
               </button>
-
               {mode === "EDIT" && (
-                <button onClick={handleCancel} className="btn-secondary">
-                  <IconX className="btn-icon" /> Cancel
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => {
+                    setMode("CREATE");
+                    setCurTodoId(null);
+                    setInputText("");
+                    setInputPriority("MEDIUM");
+                  }}
+                >
+                  ยกเลิก
                 </button>
               )}
             </div>
-          </section>
+          </form>
 
-          {/* Stats Bar */}
-          <section className="statistics">
+          {/* Quick Stats Grid */}
+          <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-icon-wrapper">
-                <IconList className="stat-icon" />
+                <IconCheck className="stat-icon" />
               </div>
-              <div className="stat-content">
-                <strong>{todos.length}</strong>
-                <p>Total Tasks</p>
+              <div className="stat-info">
+                <h3>{todos.length}</h3>
+                <p>งานทั้งหมด</p>
               </div>
             </div>
 
@@ -317,9 +498,9 @@ function App() {
               <div className="stat-icon-wrapper">
                 <IconSearch className="stat-icon" />
               </div>
-              <div className="stat-content">
-                <strong>{displayedTodos.length}</strong>
-                <p>Filtered</p>
+              <div className="stat-info">
+                <h3>{filteredTodos.length}</h3>
+                <p>ตามการค้นหา</p>
               </div>
             </div>
 
@@ -327,35 +508,29 @@ function App() {
               <div className="stat-icon-wrapper">
                 <IconCalendar className="stat-icon" />
               </div>
-              <div className="stat-content">
-                <strong>
-                  {todos.length > 0
-                    ? formatDateTime(
-                        [...todos].sort(compareDate).at(-1)?.createdAt ?? "",
-                      ).date
-                    : "-"}
-                </strong>
-                <p>Latest Activity</p>
+              <div className="stat-info">
+                <h3>{latestDateText}</h3>
+                <p>กิจกรรมล่าสุด</p>
               </div>
             </div>
-          </section>
+          </div>
 
-          {/* Search & Sorting Toolbar */}
-          <section className="search-section">
+          {/* Search & Sort Toolbar */}
+          <div className="search-section">
             <div className="search-input-wrapper">
               <IconSearch className="search-icon" />
               <input
-                type="search"
-                placeholder="Search tasks..."
+                type="text"
+                className="input-search"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                className="input-search"
+                placeholder="ค้นหางาน หรือ #แท็ก..."
               />
               {searchText && (
                 <button
                   className="search-clear-btn"
                   onClick={() => setSearchText("")}
-                  title="Clear search"
+                  title="ล้างการค้นหา"
                 >
                   <IconX className="btn-icon-sm" />
                 </button>
@@ -365,111 +540,294 @@ function App() {
             <button
               className="btn-secondary btn-sort"
               onClick={() =>
-                setSortOrder((current) =>
-                  current === "NEWEST" ? "OLDEST" : "NEWEST",
-                )
+                setSortOrder((cur) => (cur === "NEWEST" ? "OLDEST" : "NEWEST"))
               }
             >
-              <IconSort className="btn-icon" />
-              <span>{sortOrder === "NEWEST" ? "Newest First" : "Oldest First"}</span>
+              <IconSearch className="btn-icon" />
+              {sortOrder === "NEWEST" ? "ใหม่ล่าสุด" : "เก่าที่สุด"}
             </button>
-          </section>
+          </div>
 
-          {/* Todo Items List */}
-          <div data-cy="todo-item-wrapper" className="todo-list">
-            {displayedTodos.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon-box">
-                  <IconList className="empty-icon" />
+          {/* Render Active View: KANBAN BOARD vs MINIMAL LIST */}
+          {viewMode === "KANBAN" ? (
+            enabled ? (
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <div className="kanban-board">
+                  {/* Column 1: รอดำเนินการ */}
+                  <KanbanColumn
+                    id="TODO"
+                    title="📌 รอดำเนินการ"
+                    badgeClass="badge-todo"
+                    items={todoItems}
+                    onEdit={(item) => {
+                      setMode("EDIT");
+                      setCurTodoId(item.id);
+                      setInputText(item.todoText);
+                      if (item.metadata?.priority) setInputPriority(item.metadata.priority);
+                    }}
+                    onDelete={handleDelete}
+                    curTodoId={curTodoId}
+                  />
+
+                  {/* Column 2: กำลังทำ */}
+                  <KanbanColumn
+                    id="DOING"
+                    title="⚡ กำลังทำ"
+                    badgeClass="badge-doing"
+                    items={doingItems}
+                    onEdit={(item) => {
+                      setMode("EDIT");
+                      setCurTodoId(item.id);
+                      setInputText(item.todoText);
+                      if (item.metadata?.priority) setInputPriority(item.metadata.priority);
+                    }}
+                    onDelete={handleDelete}
+                    curTodoId={curTodoId}
+                  />
+
+                  {/* Column 3: เสร็จสิ้น */}
+                  <KanbanColumn
+                    id="DONE"
+                    title="✅ เสร็จสิ้น"
+                    badgeClass="badge-done"
+                    items={doneItems}
+                    onEdit={(item) => {
+                      setMode("EDIT");
+                      setCurTodoId(item.id);
+                      setInputText(item.todoText);
+                      if (item.metadata?.priority) setInputPriority(item.metadata.priority);
+                    }}
+                    onDelete={handleDelete}
+                    curTodoId={curTodoId}
+                  />
                 </div>
-                <h3>No tasks found</h3>
-                <p>
-                  {searchText
-                    ? "No tasks match your search filter."
-                    : "Your list is clear. Type above to create your first task."}
-                </p>
-              </div>
+              </DragDropContext>
             ) : (
-              displayedTodos.map((item, idx) => {
-                const { date, time } = formatDateTime(item.createdAt);
-                const isEditingThis = curTodoId === item.id;
+              <div className="kanban-board">
+                <div className="kanban-column"><div className="kanban-empty">กำลังโหลด...</div></div>
+                <div className="kanban-column"><div className="kanban-empty">กำลังโหลด...</div></div>
+                <div className="kanban-column"><div className="kanban-empty">กำลังโหลด...</div></div>
+              </div>
+            )
+          ) : (
+            /* Minimal List View */
+            <div data-cy="todo-item-wrapper" className="todo-list">
+              {filteredTodos.length === 0 ? (
+                <div className="empty-state">
+                  <p>ไม่พบรายการงาน เพิ่มรายการใหม่ด้านบนได้เลย!</p>
+                </div>
+              ) : (
+                filteredTodos.map((item, index) => {
+                  const { date, time } = formatDateTime(item.createdAt);
+                  const isEditing = curTodoId === item.id;
 
-                return (
-                  <article
-                    key={item.id}
-                    className={`todo-card ${isEditingThis ? "editing" : ""}`}
-                  >
-                    <div className="todo-left">
-                      <div className="todo-number">{idx + 1}</div>
+                  return (
+                    <div
+                      key={item.id}
+                      data-cy="todo-item"
+                      className={`todo-card ${item.isDone ? "completed" : ""} ${isEditing ? "editing" : ""}`}
+                    >
+                      <button
+                        type="button"
+                        className={`checkbox-custom ${item.isDone ? "checked" : ""}`}
+                        onClick={() => toggleDone(item)}
+                        aria-label="สลับสถานะงาน"
+                      >
+                        {item.isDone ? (
+                          <IconCheck className="check-icon" />
+                        ) : (
+                          <span className="index-num">{index + 1}</span>
+                        )}
+                      </button>
 
                       <div className="todo-content">
-                        <div data-cy="todo-item-text" className="todo-text">
-                          {item.todoText}
+                        <div className="todo-header-line">
+                          <p
+                            data-cy="todo-text"
+                            className="todo-text"
+                            onClick={() => toggleDone(item)}
+                          >
+                            {item.todoText}
+                          </p>
+
+                          {/* Priority Badge Tag */}
+                          {item.metadata?.priority && (
+                            <span className={`priority-pill priority-${item.metadata.priority.toLowerCase()}`}>
+                              {item.metadata.priority === "HIGH" ? "🔥 สูง" : item.metadata.priority === "LOW" ? "🌱 ต่ำ" : "⚡ ปานกลาง"}
+                            </span>
+                          )}
                         </div>
 
-                        <div className="todo-date">
+                        {/* Tag Badges */}
+                        {item.metadata?.tags && item.metadata.tags.length > 0 && (
+                          <div className="tag-pills">
+                            {item.metadata.tags.map((tag) => (
+                              <span key={tag} className="tag-pill">
+                                <IconTag className="meta-icon" /> #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="todo-meta">
                           <span className="meta-tag">
                             <IconCalendar className="meta-icon" /> {date}
                           </span>
-                          <span className="meta-tag">
-                            <IconClock className="meta-icon" /> {time}
-                          </span>
+                          {time && (
+                            <span className="meta-tag">
+                              <IconClock className="meta-icon" /> {time}
+                            </span>
+                          )}
                         </div>
                       </div>
-                    </div>
 
-                    <div className="todo-actions">
-                      <button
-                        title="Edit task"
-                        onClick={() => {
-                          setMode("EDIT");
-                          setCurTodoId(item.id);
-                          setInputText(item.todoText);
-                        }}
-                        data-cy="todo-item-update"
-                        className={`action-btn edit-btn ${isEditingThis ? "active" : ""}`}
-                      >
-                        <IconEdit className="action-icon" />
-                      </button>
-
-                      <button
-                        title="Delete task"
-                        onClick={() => handleDelete(item.id)}
-                        data-cy="todo-item-delete"
-                        className="action-btn delete-btn"
-                      >
-                        <IconTrash className="action-icon" />
-                      </button>
+                      <div className="todo-actions">
+                        <button
+                          type="button"
+                          className="action-btn edit-btn"
+                          onClick={() => {
+                            setMode("EDIT");
+                            setCurTodoId(item.id);
+                            setInputText(item.todoText);
+                            if (item.metadata?.priority) setInputPriority(item.metadata.priority);
+                          }}
+                          aria-label="แก้ไขงาน"
+                          title="แก้ไขงาน"
+                        >
+                          <IconEdit className="action-icon" />
+                        </button>
+                        <button
+                          type="button"
+                          className="action-btn delete-btn"
+                          onClick={() => handleDelete(item.id)}
+                          aria-label="ลบงาน"
+                          title="ลบงาน"
+                        >
+                          <IconTrash className="action-icon" />
+                        </button>
+                      </div>
                     </div>
-                  </article>
-                );
-              })
-            )}
-          </div>
+                  );
+                })
+              )}
+            </div>
+          )}
         </main>
       </div>
     </div>
   );
 }
 
-export default App;
+// Subcomponent for Kanban Columns
+function KanbanColumn({
+  id,
+  title,
+  badgeClass,
+  items,
+  onEdit,
+  onDelete,
+  curTodoId,
+}: {
+  id: string;
+  title: string;
+  badgeClass: string;
+  items: TodoItem[];
+  onEdit: (item: TodoItem) => void;
+  onDelete: (id: string) => void;
+  curTodoId: string | null;
+}) {
+  return (
+    <div className="kanban-column">
+      <div className="kanban-column-header">
+        <h2 className="kanban-column-title">{title}</h2>
+        <span className={`kanban-count-badge ${badgeClass}`}>{items.length}</span>
+      </div>
 
-function formatDateTime(dateStr: string) {
-  if (!dayjs(dateStr).isValid()) {
-    return { date: "N/A", time: "N/A" };
-  }
+      <Droppable droppableId={id}>
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={`kanban-droppable ${snapshot.isDraggingOver ? "is-dragging-over" : ""}`}
+          >
+            {items.length === 0 ? (
+              <div className="kanban-empty">ลากงานมาวางที่นี่</div>
+            ) : (
+              items.map((item, index) => {
+                const { date, time } = formatDateTime(item.createdAt);
+                const isEditing = curTodoId === item.id;
 
-  const dt = dayjs(dateStr);
+                return (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(draggableProvided, draggableSnapshot) => (
+                      <div
+                        ref={draggableProvided.innerRef}
+                        {...draggableProvided.draggableProps}
+                        {...draggableProvided.dragHandleProps}
+                        className={`kanban-card ${draggableSnapshot.isDragging ? "is-dragging" : ""} ${isEditing ? "editing" : ""}`}
+                      >
+                        <div className="kanban-card-body">
+                          <div className="kanban-card-top">
+                            <p className="kanban-card-text">{item.todoText}</p>
+                            {/* Priority Badge Tag */}
+                            {item.metadata?.priority && (
+                              <span className={`priority-pill priority-${item.metadata.priority.toLowerCase()}`}>
+                                {item.metadata.priority === "HIGH" ? "🔥 สูง" : item.metadata.priority === "LOW" ? "🌱 ต่ำ" : "⚡ ปานกลาง"}
+                              </span>
+                            )}
+                          </div>
 
-  return {
-    date: dt.format("D MMM YYYY"),
-    time: dt.format("HH:mm"),
-  };
-}
+                          {/* Tag Badges */}
+                          {item.metadata?.tags && item.metadata.tags.length > 0 && (
+                            <div className="tag-pills">
+                              {item.metadata.tags.map((tag) => (
+                                <span key={tag} className="tag-pill">
+                                  <IconTag className="meta-icon" /> #{tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
 
-function compareDate(a: TodoItem, b: TodoItem) {
-  const da = dayjs(a.createdAt).valueOf();
-  const db = dayjs(b.createdAt).valueOf();
+                          <div className="kanban-card-meta">
+                            <span className="meta-tag">
+                              <IconCalendar className="meta-icon" /> {date}
+                            </span>
+                            {time && (
+                              <span className="meta-tag">
+                                <IconClock className="meta-icon" /> {time}
+                              </span>
+                            )}
+                          </div>
+                        </div>
 
-  return da - db;
+                        <div className="kanban-card-actions">
+                          <button
+                            type="button"
+                            className="action-btn edit-btn"
+                            onClick={() => onEdit(item)}
+                            title="แก้ไขงาน"
+                          >
+                            <IconEdit className="action-icon" />
+                          </button>
+                          <button
+                            type="button"
+                            className="action-btn delete-btn"
+                            onClick={() => onDelete(item.id)}
+                            title="ลบงาน"
+                          >
+                            <IconTrash className="action-icon" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                );
+              })
+            )}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </div>
+  );
 }

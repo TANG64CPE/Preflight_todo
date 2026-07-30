@@ -10,6 +10,7 @@
 
   --bg-app: #FAF8FC;
   --bg-card: #FFFFFF;
+  --bg-column: #F5F1F8;
   --border: #ECE7F0;
 
   --text-main: #231C28;
@@ -19,33 +20,50 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
+  --radius-pill: 9999px;
 
   --control-height: 48px;
 
-  --shadow-sm: 0 2px 6px rgba(158, 118, 180, 0.06);
-  --shadow-md: 0 8px 24px rgba(158, 118, 180, 0.1);
-  --shadow-lg: 0 16px 40px rgba(158, 118, 180, 0.12);
+  --shadow-sm: 0 2px 8px rgba(158, 118, 180, 0.08);
+  --shadow-md: 0 8px 24px rgba(158, 118, 180, 0.12);
+  --shadow-lg: 0 16px 40px rgba(158, 118, 180, 0.15);
+
+  /* Status Colors */
+  --badge-todo-bg: #EFE6F7;
+  --badge-todo-text: #8A4CB5;
+  --badge-doing-bg: #FFF3E0;
+  --badge-doing-text: #E65100;
+  --badge-done-bg: #E8F5E9;
+  --badge-done-text: #2E7D32;
 }
 
 .dark {
   --primary: #B288C8;
   --primary-hover: #C59EDA;
   --primary-active: #D4B2E8;
-  --primary-light: rgba(178, 136, 200, 0.12);
+  --primary-light: rgba(178, 136, 200, 0.14);
   --primary-border: rgba(178, 136, 200, 0.25);
-  --primary-ring: rgba(178, 136, 200, 0.3);
+  --primary-ring: rgba(178, 136, 200, 0.35);
 
   --bg-app: #120E16;
   --bg-card: #1C1623;
+  --bg-column: #16111C;
   --border: #2D2437;
 
   --text-main: #F5EEF8;
   --text-muted: #A89CB2;
   --text-light: #7E7288;
 
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  --badge-todo-bg: rgba(158, 118, 180, 0.25);
+  --badge-todo-text: #D8B4E2;
+  --badge-doing-bg: rgba(255, 152, 0, 0.25);
+  --badge-doing-text: #FFCC80;
+  --badge-done-bg: rgba(76, 175, 80, 0.25);
+  --badge-done-text: #A5D6A7;
 }
 
 * {
@@ -65,8 +83,7 @@ body,
 button,
 input,
 textarea,
-select,
-.prompt-medium {
+select {
   font-family: "Prompt", sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -93,16 +110,16 @@ body {
 
 .todo-container {
   width: 100%;
-  max-width: 860px;
+  max-width: 1140px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 36px;
   box-shadow: var(--shadow-lg);
-  transition: background-color 0.25s ease, border-color 0.25s ease;
+  transition: all 0.25s ease;
 }
 
-/* Vector Icon alignment */
+/* Icons */
 .unt-icon {
   width: 18px;
   height: 18px;
@@ -122,7 +139,7 @@ body {
   height: 14px;
 }
 
-/* 1. Header Container & Flexbox (Title Column + Right-aligned Dark Mode Button) */
+/* Header Section */
 .app-header {
   display: flex;
   align-items: center;
@@ -131,6 +148,7 @@ body {
   margin-bottom: 28px;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
 }
 
 .brand-section {
@@ -139,27 +157,9 @@ body {
   gap: 16px;
 }
 
-.brand-badge {
-  width: 46px;
-  height: 46px;
-  border-radius: var(--radius-md);
-  background: var(--primary-light);
-  border: 1px solid var(--primary-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
-  flex-shrink: 0;
-}
-
-.brand-badge .brand-icon {
-  width: 22px;
-  height: 22px;
-}
-
 .brand-title {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.01em;
   line-height: 1.2;
@@ -171,12 +171,56 @@ body {
   font-weight: 400;
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* View Switcher Segmented Control */
+.view-switcher {
+  display: flex;
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+}
+
+.view-btn {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+  color: var(--primary);
+}
+
+.view-btn.active {
+  background: var(--bg-card);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Theme Toggle Button */
+.btn-theme-toggle,
 .theme-button {
-  height: 40px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 0 16px;
+  padding: 0 18px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--bg-card);
@@ -185,27 +229,34 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-sizing: border-box;
   flex-shrink: 0;
 }
 
+.btn-theme-toggle:hover,
 .theme-button:hover {
   background: var(--primary-light);
   color: var(--primary);
   border-color: var(--primary-border);
 }
 
-/* 2. Add Task Form & Inputs - EQUAL HEIGHT & STRETCH ALIGNMENT */
-.todo-form-wrapper {
+/* Main Workspace Card */
+.workspace-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Input Form */
+.todo-form {
   margin-bottom: 24px;
 }
 
-.todo-form {
+.input-group {
   display: flex;
   gap: 12px;
   align-items: center;
 }
 
+.input-task,
 .input-main {
   flex: 1;
   height: var(--control-height);
@@ -218,9 +269,84 @@ body {
   font-weight: 500;
   outline: none;
   transition: all 0.2s ease;
-  box-sizing: border-box;
 }
 
+.select-priority {
+  height: var(--control-height);
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.select-priority:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-ring);
+}
+
+.priority-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+.priority-high {
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
+}
+
+.priority-medium {
+  background: #FEF3C7;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+.priority-low {
+  background: #D1FAE5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.dark .priority-high {
+  background: rgba(220, 38, 38, 0.25);
+  color: #FCA5A5;
+  border-color: rgba(220, 38, 38, 0.4);
+}
+
+.dark .priority-medium {
+  background: rgba(217, 119, 6, 0.25);
+  color: #FDE68A;
+  border-color: rgba(217, 119, 6, 0.4);
+}
+
+.dark .priority-low {
+  background: rgba(5, 150, 105, 0.25);
+  color: #A7F3D0;
+  border-color: rgba(5, 150, 105, 0.4);
+}
+
+.todo-header-line,
+.kanban-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.input-task:focus,
 .input-main:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-ring);
@@ -228,15 +354,13 @@ body {
 
 .btn-primary {
   height: var(--control-height);
-  min-height: var(--control-height);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   padding: 0 24px;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
-  /* แก้จาก none เป็น transparent */
   background: var(--primary);
   color: #FFFFFF;
   font-size: 14px;
@@ -245,28 +369,29 @@ body {
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
   white-space: nowrap;
-  box-sizing: border-box;
   flex-shrink: 0;
 }
 
-.btn-primary:hover:not(:disabled) {
+.btn-primary:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
+.btn-edit-mode {
+  background: #3B82F6;
+}
+
+.btn-edit-mode:hover {
+  background: #2563EB;
 }
 
 .btn-secondary {
   height: var(--control-height);
-  min-height: var(--control-height);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   padding: 0 20px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
@@ -277,7 +402,6 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  box-sizing: border-box;
   flex-shrink: 0;
 }
 
@@ -287,11 +411,12 @@ body {
   color: var(--primary);
 }
 
-/* 3. Statistics Grid - 3-COLUMN EQUAL GRID & VERTICAL ALIGNMENT */
+/* Stats Grid */
+.stats-grid,
 .statistics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
@@ -307,12 +432,12 @@ body {
 }
 
 .stat-card:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .stat-icon-wrapper {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: var(--radius-sm);
   background: var(--bg-card);
   display: flex;
@@ -328,12 +453,7 @@ body {
   height: 20px;
 }
 
-.stat-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
+.stat-info h3,
 .stat-content strong {
   display: block;
   font-size: 18px;
@@ -342,19 +462,20 @@ body {
   line-height: 1.2;
 }
 
+.stat-info p,
 .stat-content p {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
   font-weight: 500;
   line-height: 1.2;
 }
 
-/* 4. Search Toolbar - MATCHING TOP FORM ALIGNMENT */
+/* Search Section */
 .search-section {
   display: flex;
   gap: 12px;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .search-input-wrapper {
@@ -386,7 +507,6 @@ body {
   font-weight: 500;
   outline: none;
   transition: all 0.2s ease;
-  box-sizing: border-box;
 }
 
 .input-search:focus {
@@ -414,119 +534,186 @@ body {
 }
 
 .btn-sort {
-  height: var(--control-height);
-  min-height: var(--control-height);
-  padding: 0 20px;
-  font-size: 14px;
   min-width: 140px;
-  flex-shrink: 0;
-  /* เพิ่มบรรทัดนี้เพื่อล็อคขนาดกล่อง */
 }
 
-/* 5. List Items - LEFT/RIGHT SPLIT, STACKED DATE/TIME, SPACED BUTTONS */
-.todo-list {
+/* Tag Pills */
+.tag-pills {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
-.todo-card {
-  display: flex;
-  align-items: flex-start;
-  /* เปลี่ยนจาก center เป็น flex-start */
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 20px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--bg-card);
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
   transition: all 0.2s ease;
 }
 
-.todo-card:hover {
-  border-color: var(--primary-border);
-  box-shadow: var(--shadow-sm);
+.tag-pill:hover {
+  transform: scale(1.04);
 }
 
-.todo-card.editing {
+/* ==========================================================================
+   KANBAN BOARD STYLING (3 Columns: To Do, Doing, Done)
+   ========================================================================== */
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.kanban-column {
+  background: var(--bg-column);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
+}
+
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 2px solid var(--border);
+}
+
+.kanban-column-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.kanban-count-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.badge-todo {
+  background: var(--badge-todo-bg);
+  color: var(--badge-todo-text);
+}
+
+.badge-doing {
+  background: var(--badge-doing-bg);
+  color: var(--badge-doing-text);
+}
+
+.badge-done {
+  background: var(--badge-done-bg);
+  color: var(--badge-done-text);
+}
+
+.kanban-droppable {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 280px;
+  border-radius: var(--radius-md);
+  padding: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.kanban-droppable.is-dragging-over {
+  background: rgba(158, 118, 180, 0.08);
+  border: 2px dashed var(--primary);
+}
+
+.kanban-empty {
+  padding: 32px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-light);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* Kanban Cards */
+.kanban-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.2s ease;
+  cursor: grab;
+}
+
+.kanban-card:hover {
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.kanban-card.is-dragging {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+  transform: scale(1.02) rotate(1deg);
+  opacity: 0.95;
+  cursor: grabbing;
+}
+
+.kanban-card.editing {
   border-color: var(--primary);
   background: var(--primary-light);
 }
 
-.todo-left {
-  display: flex;
-  align-items: flex-start;
-  /* เปลี่ยนจาก center เป็น flex-start */
-  gap: 16px;
-  flex: 1;
-  min-width: 0;
-}
-
-.todo-number {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--primary-light);
-  color: var(--primary);
-  font-size: 13px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid var(--primary-border);
-  margin-top: 2px;
-  /* ดันลงมาเล็กน้อยให้ Center กับตัวอักษรบรรทัดแรกพอดี */
-}
-
-.todo-content {
-  flex: 1;
-  min-width: 0;
+.kanban-card-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  justify-content: center;
+  gap: 6px;
 }
 
-.todo-text {
+.kanban-card-text {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-main);
-  word-break: break-word;
   line-height: 1.4;
+  word-break: break-word;
 }
 
-.todo-date {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.meta-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.meta-icon {
-  width: 14px;
-  height: 14px;
-  color: var(--text-light);
-}
-
-/* Actions Right Side (12px / 0.75rem Spacing) */
-.todo-actions {
+.kanban-card-meta {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
+  margin-top: 4px;
 }
 
+.kanban-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+/* Action Buttons */
 .action-btn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
@@ -535,19 +722,15 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  pointer-events: auto;
   transition: all 0.2s ease;
-  position: relative;
-  z-index: 2;
 }
 
 .action-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
-.edit-btn:hover,
-.edit-btn.active {
+.edit-btn:hover {
   background: var(--primary-light);
   color: var(--primary);
   border-color: var(--primary-border);
@@ -559,6 +742,119 @@ body {
   border-color: rgba(239, 68, 68, 0.2);
 }
 
+/* ==========================================================================
+   MINIMAL LIST VIEW STYLING
+   ========================================================================== */
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.todo-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.todo-card:hover {
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.todo-card.completed {
+  opacity: 0.75;
+}
+
+.todo-card.completed .todo-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.checkbox-custom {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.checkbox-custom.checked {
+  background: #10B981;
+  border-color: #10B981;
+  color: #FFFFFF;
+}
+
+.checkbox-custom:hover {
+  transform: scale(1.08);
+}
+
+.check-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.todo-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.todo-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  word-break: break-word;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.todo-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.meta-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--text-light);
+}
+
+.todo-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 /* Empty State */
 .empty-state {
   padding: 48px 24px;
@@ -566,67 +862,46 @@ body {
   border: 1px dashed var(--border);
   border-radius: var(--radius-md);
   background: var(--bg-card);
-}
-
-.empty-icon-box {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--primary-light);
-  border: 1px solid var(--primary-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
-  margin: 0 auto 12px;
-}
-
-.empty-icon {
-  width: 26px;
-  height: 26px;
-}
-
-.empty-state h3 {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-main);
-  margin-bottom: 4px;
-}
-
-.empty-state p {
-  font-size: 13px;
   color: var(--text-muted);
-  max-width: 320px;
-  margin: 0 auto;
 }
 
-/* Responsive Rules */
-@media (max-width: 680px) {
+/* Responsive Breakpoints */
+@media (max-width: 900px) {
+  .kanban-board {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .kanban-column {
+    min-height: auto;
+  }
+
+  .stats-grid,
+  .statistics {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
   .app {
     padding: 16px 12px;
   }
 
   .todo-container {
     padding: 20px 16px;
-    border-radius: var(--radius-md);
   }
 
   .app-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
   }
 
-  .theme-button {
-    align-self: flex-end;
+  .header-controls {
+    width: 100%;
+    justify-content: space-between;
   }
 
-  .statistics {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .todo-form {
+  .input-group {
     flex-direction: column;
     align-items: stretch;
   }
@@ -638,26 +913,9 @@ body {
 
   .search-section {
     flex-direction: column;
-    align-items: stretch;
   }
 
   .btn-sort {
     width: 100%;
-  }
-
-  .todo-card {
-    align-items: flex-start;
-  }
-
-  .todo-actions {
-    align-self: flex-end;
-  }
-
-  .input-main,
-  .search-input-wrapper {
-    flex: none;
-    /* ปิดการทำงานของ flex สัดส่วนความสูง */
-    width: 100%;
-    /* บังคับความกว้างให้เต็มจอแทน */
   }
 }

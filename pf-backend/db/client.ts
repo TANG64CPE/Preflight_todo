@@ -17,13 +17,10 @@ const connectionString = `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}
 let dbClient: any;
 let dbConn: any;
 
+const pgliteInstance = new PGlite();
+
 const initPglite = async () => {
-  const dataDir = path.join(process.cwd(), ".pgdata");
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  const client = new PGlite(dataDir);
-  await client.exec(`
+  await pgliteInstance.exec(`
     CREATE TABLE IF NOT EXISTS todo (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       todo_text VARCHAR(255) NOT NULL,
@@ -34,8 +31,8 @@ const initPglite = async () => {
     );
     ALTER TABLE todo ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
   `);
-  dbConn = client;
-  dbClient = drizzlePglite(client, { schema, logger: true });
+  dbConn = pgliteInstance;
+  dbClient = drizzlePglite(pgliteInstance, { schema, logger: true });
 };
 
 try {
