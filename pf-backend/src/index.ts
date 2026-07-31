@@ -115,36 +115,36 @@ app.delete("/todo", async (req, res, next) => {
 });
 
 // IoT/Hardware Webhook Endpoint
-app.post("/api/webhooks/iot", async (req, res, next) => {
-  try {
-    const { deviceId, event, sensorData, title } = req.body;
-    const todoText = title || `[IoT Alert] ${event || "Sensor trigger"} from ${deviceId || "ESP32-Node"}`;
-    const tags = ["iot", deviceId || "esp32"].map((t: string) => t.toLowerCase());
+// app.post("/api/webhooks/iot", async (req, res, next) => {
+//   try {
+//     const { deviceId, event, sensorData, title } = req.body;
+//     const todoText = title || `[IoT Alert] ${event || "Sensor trigger"} from ${deviceId || "ESP32-Node"}`;
+//     const tags = ["iot", deviceId || "esp32"].map((t: string) => t.toLowerCase());
 
-    const result = await dbClient
-      .insert(todoTable)
-      .values({
-        todoText,
-        isDone: false,
-        metadata: {
-          tags,
-          priority: "HIGH",
-          status: "TODO",
-          source: "iot_webhook",
-          sensorData: sensorData || {},
-        },
-      })
-      .returning();
+//     const result = await dbClient
+//       .insert(todoTable)
+//       .values({
+//         todoText,
+//         isDone: false,
+//         metadata: {
+//           tags,
+//           priority: "HIGH",
+//           status: "TODO",
+//           source: "iot_webhook",
+//           sensorData: sensorData || {},
+//         },
+//       })
+//       .returning();
 
-    res.status(201).json({
-      success: true,
-      message: "IoT Webhook processed and TODO created successfully",
-      todo: result[0],
-    });
-  } catch (err) {
-    next(err);
-  }
-});
+//     res.status(201).json({
+//       success: true,
+//       message: "IoT Webhook processed and TODO created successfully",
+//       todo: result[0],
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
 const jsonErrorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   debug(err);
@@ -161,19 +161,19 @@ async function ensureSeedData() {
     if (existing.length === 0) {
       await dbClient.insert(todoTable).values([
         {
-          todoText: "Water the indoor plants & check soil sensors #home #iot #urgent",
+          todoText: "นอน #พักผ่อน",
           isDone: false,
-          metadata: { tags: ["home", "iot", "urgent"], priority: "HIGH", status: "TODO", source: "iot_sensor_webhook" }
+          metadata: { tags: ["พักผ่อน"], priority: "MEDIUM", status: "DONE", source: "manual" }
         },
         {
-          todoText: "Configure Vitest Code Coverage reports #testing #qa",
+          todoText: "เล่นเกม #ชิวๆ",
           isDone: false,
-          metadata: { tags: ["testing", "qa"], priority: "HIGH", status: "DOING", source: "manual" }
+          metadata: { tags: ["ชิวๆ"], priority: "HIGH", status: "DOING", source: "manual" }
         },
         {
-          todoText: "Review Pull Request for Kanban Board UI #frontend #review",
+          todoText: "ทำงาน FullStack #ทรมาน",
           isDone: true,
-          metadata: { tags: ["frontend", "review"], priority: "MEDIUM", status: "DONE", source: "manual" }
+          metadata: { tags: ["ทรมาน"], priority: "LOW", status: "TODO", source: "manual" }
         }
       ]);
       console.log("🌱 Auto-seeded initial TODO items!");
