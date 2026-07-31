@@ -7,7 +7,7 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - pf-data:/var/lib/postgresql
+      - pf-data:/var/lib/postgresql/data
       - ./pf-db/_entrypoint:/docker-entrypoint-initdb.d
     environment:
       - TZ=Asia/Bangkok
