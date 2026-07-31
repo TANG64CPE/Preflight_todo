@@ -43,6 +43,7 @@ function IconCheck({ className = "" }: { className?: string }) {
   );
 }
 
+
 function IconCalendar({ className = "" }: { className?: string }) {
   return (
     <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -176,11 +177,15 @@ function extractTagsAndMetadata(text: string) {
   // Automatic keyword rules if no hashtags provided
   if (tags.length === 0) {
     const lower = text.toLowerCase();
-    if (lower.includes("plant") || lower.includes("water") || lower.includes("sensor") || lower.includes("ต้นไม้") || lower.includes("รดน้ำ")) tags.push("iot", "garden");
+    if (lower.includes("ประชุม") || lower.includes("meeting") || lower.includes("นัด")) tags.push("meeting");
+    if (lower.includes("ซื้อ") || lower.includes("buy") || lower.includes("shopping") || lower.includes("ของ")) tags.push("shopping");
+    if (lower.includes("กิน") || lower.includes("อาหาร") || lower.includes("food") || lower.includes("eat")) tags.push("food");
     if (lower.includes("bug") || lower.includes("fix") || lower.includes("แก้") || lower.includes("บั๊ก")) tags.push("bug");
     if (lower.includes("ui") || lower.includes("design") || lower.includes("css") || lower.includes("ออกแบบ")) tags.push("design");
     if (lower.includes("api") || lower.includes("backend") || lower.includes("db") || lower.includes("ระบบ")) tags.push("backend");
     if (lower.includes("urgent") || lower.includes("ด่วน") || lower.includes("asap")) tags.push("urgent");
+    if (lower.includes("เรียน") || lower.includes("study") || lower.includes("อ่าน") || lower.includes("read")) tags.push("study");
+    if (lower.includes("ออกกำลัง") || lower.includes("gym") || lower.includes("วิ่ง") || lower.includes("run")) tags.push("health");
   }
 
   const isUrgent = text.toLowerCase().includes("urgent") || text.includes("ด่วน");
@@ -215,6 +220,7 @@ export default function App() {
   const [sortOrder, setSortOrder] = useState<"NEWEST" | "OLDEST">("NEWEST");
   const [viewMode, setViewMode] = useState<"KANBAN" | "LIST">("KANBAN");
   const [enabled, setEnabled] = useState(false);
+
 
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     return localStorage.getItem("darkMode") === "true";
@@ -313,79 +319,70 @@ export default function App() {
 
   async function handleDelete(id: string) {
     try {
-      await axios.delete("/api/todo", { data: { id } });
-      if (curTodoId === id) {
-        setMode("CREATE");
-        setCurTodoId(null);
-        setInputText("");
-        setInputPriority("MEDIUM");
-      }
+      await axios.delete(`/api/todo/${id}`);
       fetchData();
     } catch (err) {
       console.error("Failed to delete todo", err);
     }
   }
 
-  // Handle Drag & Drop in Kanban Board
-  async function handleDragEnd(result: DropResult) {
+  function handleDragEnd(result: DropResult) {
     const { destination, source, draggableId } = result;
-
     if (!destination) return;
+
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
-    ) return;
+    ) {
+      return;
+    }
 
-    const targetStatus = destination.droppableId as "TODO" | "DOING" | "DONE";
-    const targetIsDone = targetStatus === "DONE";
+    const newStatus = destination.droppableId as "TODO" | "DOING" | "DONE";
 
-    // Optimistic UI update
+    const targetItem = todos.find((item) => item.id === draggableId);
+    if (!targetItem) return;
+
+    const isDone = newStatus === "DONE";
+
     setTodos((prevTodos) =>
-      prevTodos.map((t) => {
-        if (t.id === draggableId) {
-          return {
-            ...t,
-            isDone: targetIsDone,
-            metadata: {
-              ...t.metadata,
-              status: targetStatus
+      prevTodos.map((item) =>
+        item.id === draggableId
+          ? {
+              ...item,
+              isDone,
+              metadata: {
+                ...item.metadata,
+                status: newStatus
+              }
             }
-          };
-        }
-        return t;
-      })
+          : item
+      )
     );
 
-    // Backend sync
-    try {
-      const draggedItem = todos.find((t) => t.id === draggableId);
-      if (draggedItem) {
-        await axios.put("/api/todo", {
-          id: draggableId,
-          isDone: targetIsDone,
-          metadata: {
-            ...draggedItem.metadata,
-            status: targetStatus
-          }
-        });
-      }
-    } catch (err) {
-      console.error("Failed to update dragged todo status", err);
-      fetchData();
-    }
+    axios
+      .put("/api/todo", {
+        id: draggableId,
+        isDone,
+        metadata: {
+          ...targetItem.metadata,
+          status: newStatus
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to sync drag and drop update", err);
+        fetchData();
+      });
   }
 
-  const latestDateText = todos.length > 0
-    ? formatDateTime(todos[0].createdAt).date
-    : formatDateTime().date;
-
   const filteredTodos = todos
-    .filter((item) => {
+    .filter((t) => {
       if (!searchText.trim()) return true;
-      const q = searchText.toLowerCase();
-      const matchText = item.todoText.toLowerCase().includes(q);
-      const matchTags = item.metadata?.tags?.some((t) => t.toLowerCase().includes(q));
-      return matchText || matchTags;
+      const term = searchText.toLowerCase().trim();
+      const textMatch = t.todoText.toLowerCase().includes(term);
+      const tagMatch = t.metadata?.tags?.some((tag) =>
+        tag.toLowerCase().includes(term.replace("#", ""))
+      );
+      return textMatch || tagMatch;
     })
     .sort((a, b) => {
       const timeA = new Date(a.createdAt || 0).getTime();
@@ -396,6 +393,11 @@ export default function App() {
   const todoItems = filteredTodos.filter((t) => getItemStatus(t) === "TODO");
   const doingItems = filteredTodos.filter((t) => getItemStatus(t) === "DOING");
   const doneItems = filteredTodos.filter((t) => getItemStatus(t) === "DONE");
+
+
+  const latestDateText = todos.length > 0
+    ? formatDateTime(todos[0].createdAt).date
+    : formatDateTime().date;
 
   return (
     <div className={darkMode ? "app dark" : "app"}>
@@ -443,6 +445,8 @@ export default function App() {
                 </>
               )}
             </button>
+
+
           </div>
         </header>
 
