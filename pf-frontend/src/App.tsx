@@ -138,6 +138,32 @@ function IconTag({ className = "" }: { className?: string }) {
   );
 }
 
+function IconFlame({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 17c1.38 0 2.5-1.12 2.5-2.5 0-1.7-1.4-2.8-2.5-4-.2-.2-.5-.2-.7 0-1.1 1.2-2.5 2.3-2.5 4z"></path>
+      <path d="M12 2c1.8 3.6 5 6.4 5 11a7 7 0 1 1-14 0c0-4.6 3.2-7.4 5-11 1.3 2.5 2.7 3.9 4 0z"></path>
+    </svg>
+  );
+}
+
+function IconZap({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+    </svg>
+  );
+}
+
+function IconLeaf({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`unt-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"></path>
+      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+    </svg>
+  );
+}
+
 // Auto-tagging parser function
 function extractTagsAndMetadata(text: string) {
   const hashtagRegex = /#([\wก-๙]+)/g;
@@ -224,9 +250,9 @@ export default function App() {
     if (!inputText.trim()) return;
 
     const { tags, detectedPriority } = extractTagsAndMetadata(inputText);
-    const finalPriority = inputPriority !== "MEDIUM" ? inputPriority : detectedPriority;
 
     if (mode === "CREATE") {
+      const finalPriority = inputPriority !== "MEDIUM" ? inputPriority : detectedPriority;
       try {
         await axios.post("/api/todo", {
           todoText: inputText,
@@ -252,7 +278,7 @@ export default function App() {
           metadata: {
             ...existing?.metadata,
             tags,
-            priority: finalPriority
+            priority: inputPriority
           }
         });
         setInputText("");
@@ -437,18 +463,34 @@ export default function App() {
                     : "แก้ไขรายละเอียดงาน..."
                 }
               />
-              
-              {/* Select Priority (ระดับความสำคัญ) */}
-              <select
-                className="select-priority"
-                value={inputPriority}
-                onChange={(e) => setInputPriority(e.target.value as "LOW" | "MEDIUM" | "HIGH")}
-                title="เลือกระดับความสำคัญ"
-              >
-                <option value="HIGH">🔥 สูง</option>
-                <option value="MEDIUM">⚡ ปานกลาง</option>
-                <option value="LOW">🌱 ต่ำ</option>
-              </select>
+
+              {/* Priority Segmented Pill Selector (High / Medium / Low) */}
+              <div className="priority-segmented-group">
+                <button
+                  type="button"
+                  className={`priority-btn priority-btn-high ${inputPriority === "HIGH" ? "active" : ""}`}
+                  onClick={() => setInputPriority("HIGH")}
+                  title="ความสำคัญสูง"
+                >
+                  <IconFlame className="btn-icon-sm" /> High
+                </button>
+                <button
+                  type="button"
+                  className={`priority-btn priority-btn-medium ${inputPriority === "MEDIUM" ? "active" : ""}`}
+                  onClick={() => setInputPriority("MEDIUM")}
+                  title="ความสำคัญปานกลาง"
+                >
+                  <IconZap className="btn-icon-sm" /> Medium
+                </button>
+                <button
+                  type="button"
+                  className={`priority-btn priority-btn-low ${inputPriority === "LOW" ? "active" : ""}`}
+                  onClick={() => setInputPriority("LOW")}
+                  title="ความสำคัญต่ำ"
+                >
+                  <IconLeaf className="btn-icon-sm" /> Low
+                </button>
+              </div>
 
               <button
                 data-cy="todo-submit"
@@ -486,7 +528,7 @@ export default function App() {
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-icon-wrapper">
-                <IconCheck className="stat-icon" />
+                <IconList className="stat-icon" />
               </div>
               <div className="stat-info">
                 <h3>{todos.length}</h3>
@@ -496,11 +538,11 @@ export default function App() {
 
             <div className="stat-card">
               <div className="stat-icon-wrapper">
-                <IconSearch className="stat-icon" />
+                <IconCheck className="stat-icon" />
               </div>
               <div className="stat-info">
-                <h3>{filteredTodos.length}</h3>
-                <p>ตามการค้นหา</p>
+                <h3>{todos.filter((t) => getItemStatus(t) === "DONE").length}</h3>
+                <p>เสร็จสิ้นแล้ว</p>
               </div>
             </div>
 
@@ -556,14 +598,15 @@ export default function App() {
                   {/* Column 1: รอดำเนินการ */}
                   <KanbanColumn
                     id="TODO"
-                    title="📌 รอดำเนินการ"
+                    title="รอดำเนินการ"
+                    icon={<IconClock className="btn-icon" />}
                     badgeClass="badge-todo"
                     items={todoItems}
                     onEdit={(item) => {
                       setMode("EDIT");
                       setCurTodoId(item.id);
                       setInputText(item.todoText);
-                      if (item.metadata?.priority) setInputPriority(item.metadata.priority);
+                      setInputPriority(item.metadata?.priority || "MEDIUM");
                     }}
                     onDelete={handleDelete}
                     curTodoId={curTodoId}
@@ -572,14 +615,15 @@ export default function App() {
                   {/* Column 2: กำลังทำ */}
                   <KanbanColumn
                     id="DOING"
-                    title="⚡ กำลังทำ"
+                    title="กำลังทำ"
+                    icon={<IconZap className="btn-icon" />}
                     badgeClass="badge-doing"
                     items={doingItems}
                     onEdit={(item) => {
                       setMode("EDIT");
                       setCurTodoId(item.id);
                       setInputText(item.todoText);
-                      if (item.metadata?.priority) setInputPriority(item.metadata.priority);
+                      setInputPriority(item.metadata?.priority || "MEDIUM");
                     }}
                     onDelete={handleDelete}
                     curTodoId={curTodoId}
@@ -588,14 +632,15 @@ export default function App() {
                   {/* Column 3: เสร็จสิ้น */}
                   <KanbanColumn
                     id="DONE"
-                    title="✅ เสร็จสิ้น"
+                    title="เสร็จสิ้น"
+                    icon={<IconCheck className="btn-icon" />}
                     badgeClass="badge-done"
                     items={doneItems}
                     onEdit={(item) => {
                       setMode("EDIT");
                       setCurTodoId(item.id);
                       setInputText(item.todoText);
-                      if (item.metadata?.priority) setInputPriority(item.metadata.priority);
+                      setInputPriority(item.metadata?.priority || "MEDIUM");
                     }}
                     onDelete={handleDelete}
                     curTodoId={curTodoId}
@@ -653,7 +698,13 @@ export default function App() {
                           {/* Priority Badge Tag */}
                           {item.metadata?.priority && (
                             <span className={`priority-pill priority-${item.metadata.priority.toLowerCase()}`}>
-                              {item.metadata.priority === "HIGH" ? "🔥 สูง" : item.metadata.priority === "LOW" ? "🌱 ต่ำ" : "⚡ ปานกลาง"}
+                              {item.metadata.priority === "HIGH" ? (
+                                <><IconFlame className="btn-icon-sm" /> High</>
+                              ) : item.metadata.priority === "LOW" ? (
+                                <><IconLeaf className="btn-icon-sm" /> Low</>
+                              ) : (
+                                <><IconZap className="btn-icon-sm" /> Medium</>
+                              )}
                             </span>
                           )}
                         </div>
@@ -689,7 +740,7 @@ export default function App() {
                             setMode("EDIT");
                             setCurTodoId(item.id);
                             setInputText(item.todoText);
-                            if (item.metadata?.priority) setInputPriority(item.metadata.priority);
+                            setInputPriority(item.metadata?.priority || "MEDIUM");
                           }}
                           aria-label="แก้ไขงาน"
                           title="แก้ไขงาน"
@@ -722,6 +773,7 @@ export default function App() {
 function KanbanColumn({
   id,
   title,
+  icon,
   badgeClass,
   items,
   onEdit,
@@ -730,6 +782,7 @@ function KanbanColumn({
 }: {
   id: string;
   title: string;
+  icon?: React.ReactNode;
   badgeClass: string;
   items: TodoItem[];
   onEdit: (item: TodoItem) => void;
@@ -739,7 +792,9 @@ function KanbanColumn({
   return (
     <div className="kanban-column">
       <div className="kanban-column-header">
-        <h2 className="kanban-column-title">{title}</h2>
+        <h2 className="kanban-column-title">
+          {icon} {title}
+        </h2>
         <span className={`kanban-count-badge ${badgeClass}`}>{items.length}</span>
       </div>
 
@@ -772,7 +827,13 @@ function KanbanColumn({
                             {/* Priority Badge Tag */}
                             {item.metadata?.priority && (
                               <span className={`priority-pill priority-${item.metadata.priority.toLowerCase()}`}>
-                                {item.metadata.priority === "HIGH" ? "🔥 สูง" : item.metadata.priority === "LOW" ? "🌱 ต่ำ" : "⚡ ปานกลาง"}
+                                {item.metadata.priority === "HIGH" ? (
+                                  <><IconFlame className="btn-icon-sm" /> High</>
+                                ) : item.metadata.priority === "LOW" ? (
+                                  <><IconLeaf className="btn-icon-sm" /> Low</>
+                                ) : (
+                                  <><IconZap className="btn-icon-sm" /> Medium</>
+                                )}
                               </span>
                             )}
                           </div>

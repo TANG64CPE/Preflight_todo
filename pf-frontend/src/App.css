@@ -271,24 +271,120 @@ body {
   transition: all 0.2s ease;
 }
 
-.select-priority {
-  height: var(--control-height);
-  padding: 0 14px;
-  border-radius: var(--radius-md);
+/* Priority Segmented Pill Selector */
+.priority-segmented-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
   border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   background: var(--bg-card);
-  color: var(--text-main);
-  font-size: 13px;
-  font-weight: 600;
-  outline: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  height: var(--control-height);
   flex-shrink: 0;
 }
 
-.select-priority:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-ring);
+.priority-btn {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+.priority-btn:hover {
+  opacity: 1;
+}
+
+/* High Priority Button */
+.priority-btn-high {
+  background: rgba(254, 226, 226, 0.4);
+  color: #991B1B;
+}
+
+.priority-btn-high:hover,
+.priority-btn-high.active {
+  background: #FEE2E2;
+  color: #991B1B;
+  border-color: #FCA5A5;
+  opacity: 1;
+  box-shadow: 0 2px 6px rgba(153, 27, 27, 0.12);
+}
+
+/* Medium Priority Button */
+.priority-btn-medium {
+  background: rgba(254, 243, 199, 0.4);
+  color: #92400E;
+}
+
+.priority-btn-medium:hover,
+.priority-btn-medium.active {
+  background: #FEF3C7;
+  color: #92400E;
+  border-color: #FDE68A;
+  opacity: 1;
+  box-shadow: 0 2px 6px rgba(146, 64, 14, 0.12);
+}
+
+/* Low Priority Button */
+.priority-btn-low {
+  background: rgba(220, 252, 231, 0.4);
+  color: #166534;
+}
+
+.priority-btn-low:hover,
+.priority-btn-low.active {
+  background: #DCFCE7;
+  color: #166534;
+  border-color: #86EFAC;
+  opacity: 1;
+  box-shadow: 0 2px 6px rgba(22, 101, 52, 0.12);
+}
+
+/* Dark Mode Priority Buttons */
+.dark .priority-btn-high {
+  background: rgba(220, 38, 38, 0.15);
+  color: #FCA5A5;
+}
+
+.dark .priority-btn-high:hover,
+.dark .priority-btn-high.active {
+  background: rgba(220, 38, 38, 0.35);
+  color: #FECACA;
+  border-color: rgba(252, 165, 165, 0.4);
+}
+
+.dark .priority-btn-medium {
+  background: rgba(217, 119, 6, 0.15);
+  color: #FDE68A;
+}
+
+.dark .priority-btn-medium:hover,
+.dark .priority-btn-medium.active {
+  background: rgba(217, 119, 6, 0.35);
+  color: #FEF08A;
+  border-color: rgba(253, 230, 138, 0.4);
+}
+
+.dark .priority-btn-low {
+  background: rgba(5, 150, 105, 0.15);
+  color: #A7F3D0;
+}
+
+.dark .priority-btn-low:hover,
+.dark .priority-btn-low.active {
+  background: rgba(5, 150, 105, 0.35);
+  color: #BBF7D0;
+  border-color: rgba(167, 243, 208, 0.4);
 }
 
 .priority-pill {
@@ -597,6 +693,9 @@ body {
   font-size: 15px;
   font-weight: 700;
   color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .kanban-count-badge {
@@ -904,15 +1003,49 @@ body {
   .input-group {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+  }
+
+  .input-task,
+  .input-main {
+    width: 100%;
+    height: var(--control-height);
+    min-height: var(--control-height);
+  }
+
+  .priority-segmented-group {
+    width: 100%;
+    justify-content: center;
+    height: var(--control-height);
+  }
+
+  .priority-btn {
+    flex: 1;
+    justify-content: center;
   }
 
   .btn-primary,
   .btn-secondary {
     width: 100%;
+    height: var(--control-height);
+    min-height: var(--control-height);
   }
 
   .search-section {
     flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .search-input-wrapper {
+    width: 100%;
+    flex: none;
+  }
+
+  .input-search {
+    width: 100%;
+    height: var(--control-height);
+    min-height: var(--control-height);
   }
 
   .btn-sort {
