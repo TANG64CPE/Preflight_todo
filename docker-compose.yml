@@ -26,6 +26,7 @@ services:
 
   backend:
     container_name: pf-backend
+    image: g15-backend:latest
     build: ./pf-backend
     ports:
       - "${PORT:-3001}:3000"
@@ -45,6 +46,7 @@ services:
 
   frontend:
     container_name: pf-frontend
+    image: g15-frontend:latest
     build: ./pf-frontend
     ports:
       - "${NGINX_PORT:-6002}:6000"
