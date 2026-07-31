@@ -186,5 +186,5 @@ async function ensureSeedData() {
 app.listen(PORT, () => {
   debug(`Listening on port ${PORT}: http://localhost:${PORT}`);
   console.log(`Backend server listening on http://localhost:${PORT}`);
-  // ensureSeedData(); // ปิดการ Auto-seed ข้อมูลตัวอย่างเริ่มต้น
+  ensureSeedData();
 });
